@@ -78,7 +78,7 @@ class KibanaMessage extends Message
      */
     public function setAdditional($key, $value, $scope = 'context')
     {
-        if (!$key) {
+        if (0 !== $key && !$key) {
             throw new RuntimeException('Additional field key cannot be empty');
         }
 
