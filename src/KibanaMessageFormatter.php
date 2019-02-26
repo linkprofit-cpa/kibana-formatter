@@ -103,8 +103,12 @@ class KibanaMessageFormatter extends NormalizerFormatter
             return 'Over 9 levels deep, aborting normalization';
         }
 
-        if (null === $data || is_scalar($data)) {
-            if (is_float($data)) {
+        if (null === $data) {
+            return null;
+        }
+
+        if (is_scalar($data)) {
+            if (\is_float($data)) {
                 if (is_infinite($data)) {
                     return ($data > 0 ? '' : '-') . 'INF';
                 }
@@ -122,7 +126,7 @@ class KibanaMessageFormatter extends NormalizerFormatter
             $count = 1;
             foreach ($data as $key => $value) {
                 if ($count++ > 1000) {
-                    $normalized['...'] = 'Over 1000 items ('.count($data).' total), aborting normalization';
+                    $normalized['...'] = 'Over 1000 items (' . count($data) . ' total), aborting normalization';
                     break;
                 }
 
@@ -153,6 +157,6 @@ class KibanaMessageFormatter extends NormalizerFormatter
             return sprintf('[resource] (%s)', get_resource_type($data));
         }
 
-        return '[unknown('.gettype($data).')]';
+        return '[unknown(' . gettype($data) . ')]';
     }
 }
