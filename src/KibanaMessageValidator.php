@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Common;
+namespace Linkprofit\KibanaFormatter;
 
 use Gelf\MessageInterface;
 use Gelf\MessageValidator;
