@@ -1,0 +1,42 @@
+{
+  "name": "linkprofit-cpa/kibana-formatter",
+  "description": "Formatter for Kibana log-messages",
+  "type": "library",
+  "keywords": [
+    "logstash",
+    "kibana",
+    "formatter",
+    "gelf"
+  ],
+  "homepage": "https://github.com/linkprofit-cpa/kibana-formatter",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Yancharuk Alexander",
+      "email": "alex@itvault.info",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=7.2.0",
+    "graylog2/gelf-php": "^1.6",
+    "monolog/monolog": "^1.20"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "*",
+    "roave/security-advisories": "dev-master"
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "autoload": {
+    "psr-4": {
+      "Linkprofit\\KibanaFormatter\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Linkprofit\\KibanaFormatter\\": "tests/"
+    }
+  }
+}
