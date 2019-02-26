@@ -69,21 +69,25 @@ class KibanaMessageFormatter extends NormalizerFormatter
         }
 
         foreach ($record['extra'] as $key => $val) {
-            $len = strlen($key . $val);
-            $value = $len > static::MAX_LENGTH
-                ? substr($val, 0, static::MAX_LENGTH)
-                : $val;
+            if (is_string($val)) {
+                $len = strlen($key . $val);
+                $val = $len > static::MAX_LENGTH
+                    ? substr($val, 0, static::MAX_LENGTH)
+                    : $val;
+            }
 
-            $this->message->setAdditional($key, $value, 'extra');
+            $this->message->setAdditional($key, $val, 'extra');
         }
 
         foreach ($record['context'] as $key => $val) {
-            $len = strlen($key . $val);
-            $value = $len > static::MAX_LENGTH
-                ? substr($val, 0, static::MAX_LENGTH)
-                : $val;
+            if (is_string($val)) {
+                $len = strlen($key . $val);
+                $val = $len > static::MAX_LENGTH
+                    ? substr($val, 0, static::MAX_LENGTH)
+                    : $val;
+            }
 
-            $this->message->setAdditional($key, $value);
+            $this->message->setAdditional($key, $val);
         }
 
         if (isset($record['context']['exception']['file'], $record['context']['exception']['line'])
