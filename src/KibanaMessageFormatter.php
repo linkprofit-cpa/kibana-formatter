@@ -103,8 +103,12 @@ class KibanaMessageFormatter extends NormalizerFormatter
             return 'Over 9 levels deep, aborting normalization';
         }
 
-        if (null === $data || is_scalar($data)) {
-            if (is_float($data)) {
+        if (null === $data) {
+            return null;
+        }
+
+        if (is_scalar($data)) {
+            if (\is_float($data)) {
                 if (is_infinite($data)) {
                     return ($data > 0 ? '' : '-') . 'INF';
                 }
