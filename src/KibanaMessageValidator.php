@@ -20,7 +20,7 @@ class KibanaMessageValidator extends MessageValidator
     public function validate(MessageInterface $message, &$reason = '')
     {
         if ('1.0' === $message->getVersion()) {
-                return $this->validate0200($message, $reason);
+            return $this->validate0200($message, $reason);
         }
 
         throw new RuntimeException(
