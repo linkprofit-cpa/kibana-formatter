@@ -2,7 +2,7 @@
   "name": "linkprofit-cpa/kibana-formatter",
   "description": "Formatter for Kibana log-messages",
   "type": "library",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "keywords": [
     "logstash",
     "kibana",
@@ -20,6 +20,7 @@
   ],
   "require": {
     "php": ">=7.2.0",
+    "ext-json": "*",
     "graylog2/gelf-php": "^1.6",
     "monolog/monolog": "^1.20"
   },

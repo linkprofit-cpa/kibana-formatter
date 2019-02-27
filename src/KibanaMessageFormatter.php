@@ -95,12 +95,12 @@ class KibanaMessageFormatter extends NormalizerFormatter
             $this->message->setAdditional($key, $val);
         }
 
-        if (isset($record['context']['exception']['file'], $record['context']['exception']['line'])
+        if (isset($record['context']['exception']['file'])
             && null === $this->message->getFile()
-            && null === $this->message->getLine()
+            && preg_match("/^(.+):(\d+)$/", $record['context']['exception']['file'], $matches)
         ) {
-            $this->message->setFile($record['context']['exception']['file']);
-            $this->message->setLine($record['context']['exception']['line']);
+            $this->message->setFile($matches[1]);
+            $this->message->setLine($matches[2]);
         }
 
         return $this->message;
@@ -192,7 +192,7 @@ class KibanaMessageFormatter extends NormalizerFormatter
     protected function normalizeException($e)
     {
         if (!$e instanceof Throwable) {
-            $msg = 'Throwable expected, got ' . gettype($e). ' / ' . get_class($e);
+            $msg = 'Throwable expected, got ' . gettype($e) . ' / ' . get_class($e);
             throw new InvalidArgumentException($msg);
         }
 
@@ -220,7 +220,7 @@ class KibanaMessageFormatter extends NormalizerFormatter
         $trace = $e->getTrace();
         foreach ($trace as $frame) {
             if (isset($frame['file'])) {
-                $data['trace'][] = $frame['file'].':'.$frame['line'];
+                $data['trace'][] = $frame['file'] . ':' . $frame['line'];
             } elseif (isset($frame['function']) && $frame['function'] === '{closure}') {
                 // Simplify closures handling
                 $data['trace'][] = $frame['function'];
