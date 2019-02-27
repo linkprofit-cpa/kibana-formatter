@@ -2,8 +2,11 @@
 
 namespace Linkprofit\KibanaFormatter;
 
+use DateTime;
+use DateTimeInterface;
 use InvalidArgumentException;
 use Monolog\Formatter\NormalizerFormatter;
+use Throwable;
 
 /**
  * Formatter for Kibana messages
@@ -26,6 +29,8 @@ class KibanaMessageFormatter extends NormalizerFormatter
     }
 
     /**
+     * Build KibanaMessage
+     *
      * @param array $record
      *
      * @return KibanaMessage
@@ -101,6 +106,14 @@ class KibanaMessageFormatter extends NormalizerFormatter
         return $this->message;
     }
 
+    /**
+     * Data normalization
+     *
+     * @param $data
+     * @param int $depth
+     *
+     * @return array|mixed|string|null
+     */
     protected function normalize($data, $depth = 0)
     {
         if ($depth > 9) {
@@ -140,11 +153,15 @@ class KibanaMessageFormatter extends NormalizerFormatter
             return $normalized;
         }
 
-        if ($data instanceof \DateTime) {
+        if ($data instanceof DateTime) {
             return $data->format($this->dateFormat);
         }
 
         if (is_object($data)) {
+            if ($data instanceof Throwable) {
+                return $this->normalizeException($data);
+            }
+
             $encodeOptions = JSON_UNESCAPED_UNICODE
                 | JSON_UNESCAPED_SLASHES
                 | JSON_INVALID_UTF8_SUBSTITUTE;
@@ -163,5 +180,71 @@ class KibanaMessageFormatter extends NormalizerFormatter
         }
 
         return '[unknown(' . gettype($data) . ')]';
+    }
+
+    /**
+     * Exception object normalization
+     *
+     * @param $e
+     *
+     * @return array
+     */
+    protected function normalizeException($e)
+    {
+        if (!$e instanceof Throwable) {
+            $msg = 'Throwable expected, got ' . gettype($e). ' / ' . get_class($e);
+            throw new InvalidArgumentException($msg);
+        }
+
+        $data = array(
+            'class' => get_class($e),
+            'message' => $e->getMessage(),
+            'code' => $e->getCode(),
+            'file' => $e->getFile() . ':' . $e->getLine(),
+        );
+
+        if ($e instanceof \SoapFault) {
+            if (isset($e->faultcode)) {
+                $data['faultcode'] = $e->faultcode;
+            }
+
+            if (isset($e->faultactor)) {
+                $data['faultactor'] = $e->faultactor;
+            }
+
+            if (isset($e->detail)) {
+                $data['detail'] = $e->detail;
+            }
+        }
+
+        $trace = $e->getTrace();
+        foreach ($trace as $frame) {
+            if (isset($frame['file'])) {
+                $data['trace'][] = $frame['file'].':'.$frame['line'];
+            } elseif (isset($frame['function']) && $frame['function'] === '{closure}') {
+                // Simplify closures handling
+                $data['trace'][] = $frame['function'];
+            } else {
+                if (isset($frame['args'])) {
+                    // Make sure that objects present as arguments are not serialized nicely but rather only
+                    // as a class name to avoid any unexpected leak of sensitive information
+                    $frame['args'] = array_map(function ($arg) {
+                        if (is_object($arg) && !($arg instanceof DateTime || $arg instanceof DateTimeInterface)) {
+                            return sprintf("[object] (%s)", get_class($arg));
+                        }
+
+                        return $arg;
+                    }, $frame['args']);
+                }
+                // We should again normalize the frames, because it might contain invalid items
+                $data['trace'][] = $this->normalize($frame);
+            }
+        }
+
+        if ($previous = $e->getPrevious()) {
+            $data['previous'] = $this->normalizeException($previous);
+        }
+
+        return $data;
     }
 }
