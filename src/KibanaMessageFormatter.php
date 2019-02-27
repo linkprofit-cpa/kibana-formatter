@@ -145,10 +145,11 @@ class KibanaMessageFormatter extends NormalizerFormatter
         }
 
         if (is_object($data)) {
-            // non-serializable objects that implement __toString stringified
-            $value = method_exists($data, '__toString')
-                ? $data->__toString()
-                : json_decode(json_encode($data), true);
+            $encodeOptions = JSON_UNESCAPED_UNICODE
+                | JSON_UNESCAPED_SLASHES
+                | JSON_INVALID_UTF8_SUBSTITUTE;
+
+            $value = json_decode(json_encode($data, $encodeOptions), true);
 
             if (is_array($value)) {
                 $value = ['class_name' => get_class($data)] + $value;
