@@ -6,7 +6,7 @@
 
 Formatter for Kibana log-messages
 
-For using in Symfony projects run:
+For using in Symfony 4+ projects run:
 
     composer require logger
 
