@@ -224,13 +224,39 @@ class KibanaMessageFormatter extends NormalizerFormatter
             } elseif (isset($frame['function']) && $frame['function'] === '{closure}') {
                 // Simplify closures handling
                 $data['trace'][] = $frame['function'];
+            } elseif (isset($frame['function'], $frame['class'], $frame['type'])) {
+                $args = '';
+                if (is_array($frame['args'])) {
+                    foreach ($frame['args'] as $arg) {
+                        switch(gettype($arg)) {
+                            case 'array':
+                                $args .= 'Array, ';
+                                break;
+                            case 'object':
+                                $args .= get_class($arg) . ', ';
+                                break;
+                            case 'string':
+                                $args .= '\'' . $arg . '\', ';
+                                break;
+                            case 'NULL':
+                                $args .= 'NULL, ';
+                                break;
+                            default:
+                                $args .= $arg . ', ';
+                        }
+                    }
+                }
+
+                $args = rtrim($args, ', ');
+                // Simplify internal functions handling
+                $data['trace'][] = "$frame[class]$frame[type]$frame[function]($args)";
             } else {
                 if (isset($frame['args'])) {
                     // Make sure that objects present as arguments are not serialized nicely but rather only
                     // as a class name to avoid any unexpected leak of sensitive information
                     $frame['args'] = array_map(function ($arg) {
                         if (is_object($arg) && !($arg instanceof DateTime || $arg instanceof DateTimeInterface)) {
-                            return sprintf("[object] (%s)", get_class($arg));
+                            return sprintf('[object] (%s)', get_class($arg));
                         }
 
                         return $arg;
