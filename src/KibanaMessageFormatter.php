@@ -6,6 +6,7 @@ use DateTime;
 use DateTimeInterface;
 use InvalidArgumentException;
 use Monolog\Formatter\NormalizerFormatter;
+use SoapFault;
 use Throwable;
 
 /**
@@ -203,7 +204,7 @@ class KibanaMessageFormatter extends NormalizerFormatter
             'file' => $e->getFile() . ':' . $e->getLine(),
         );
 
-        if ($e instanceof \SoapFault) {
+        if ($e instanceof SoapFault) {
             if (isset($e->faultcode)) {
                 $data['faultcode'] = $e->faultcode;
             }
@@ -254,8 +255,8 @@ class KibanaMessageFormatter extends NormalizerFormatter
                 if (isset($frame['args'])) {
                     // Make sure that objects present as arguments are not serialized nicely but rather only
                     // as a class name to avoid any unexpected leak of sensitive information
-                    $frame['args'] = array_map(function ($arg) {
-                        if (is_object($arg) && !($arg instanceof DateTime || $arg instanceof DateTimeInterface)) {
+                    $frame['args'] = array_map(static function ($arg) {
+                        if (is_object($arg) && !$arg instanceof DateTimeInterface) {
                             return sprintf('[object] (%s)', get_class($arg));
                         }
 
