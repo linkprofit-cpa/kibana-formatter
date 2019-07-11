@@ -5,7 +5,7 @@
 [![Conventional Commits][Conventional commits badge]][Conventional commits src]
 [![Semantic Versioning][Versioning img]][Versioning src]
 
-##Kibana log-messages for exceptions
+## Kibana log-messages for exceptions
 By default after formatting in [GelfMessageFormatter][GelfMessageFormatter.php] Exception traces in Kibana JSON-view looks like string.
 This package formats traces into easy readable JSON.
 
