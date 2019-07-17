@@ -9,6 +9,42 @@
 By default after formatting in [GelfMessageFormatter][GelfMessageFormatter.php] Exception traces in Kibana JSON-view looks like string.
 This package formats traces into easy readable JSON.
 
+## Installation
+1. Install kibana-formatter:
+   ```bash
+   composer require linkprofit-cpa/kibana-formatter:^0.4
+   ```
+2. Define environment variables:
+* `APPLICATION_CODE`
+* `APPLICATION_VERSION`
+* `KIBANA_HOST`
+* `KIBANA_PORT`
+
+3. Use this snippet for `Logger` initialization:
+    ```php
+    $connect = new GelfHandler(
+       new Publisher(
+           new UdpTransport(
+               getenv('KIBANA_HOST'),
+               getenv('KIBANA_PORT')
+           ),
+           new KibanaMessageValidator
+       )
+    );
+
+    $connect->pushProcessor(new PsrLogMessageProcessor);
+    $connect->setFormatter(
+        new KibanaMessageFormatter(
+            new KibanaMessage(
+                getenv('APPLICATION_CODE'),
+                getenv('APPLICATION_VERSION')
+            )
+        )
+    );
+
+    $logger = new Logger('app', [$connect]);
+    ```
+
 ## Symfony 4+ installation
 1. Install logger:
     ```bash
