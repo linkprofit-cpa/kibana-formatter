@@ -15,10 +15,10 @@ This package formats traces into easy readable JSON.
    composer require linkprofit-cpa/kibana-formatter:^0.4
    ```
 2. Define environment variables:
-* `APPLICATION_CODE`
-* `APPLICATION_VERSION`
-* `KIBANA_HOST`
-* `KIBANA_PORT`
+    * `APPLICATION_CODE`
+    * `APPLICATION_VERSION`
+    * `KIBANA_HOST`
+    * `KIBANA_PORT`
 
 3. Use this snippet for `Logger` initialization:
     ```php
